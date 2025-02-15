@@ -44,27 +44,31 @@ public class Grammar
     public FiniteAutomaton toFiniteAutomaton() {
         Set<String> states = new HashSet<>(V_n);
         Set<String> alphabet = new HashSet<>(V_t);
-        Map<String, Map<String, String>> transitions = new HashMap<>();
+        Map<String, Map<String, Set<String>>> transitions = new HashMap<>();
 
-        transitions.put("S", Map.of("a", "B"));
+        transitions.put("S", new HashMap<>() {{
+            put("a", new HashSet<>(Collections.singletonList("B")));
+        }});
 
-        transitions.put("B", new HashMap<>(Map.of(
-                "b", "S",
-                "a", "C"
-        )));
-        transitions.get("B").put("b", "B"); // B → b (final)
+        transitions.put("B", new HashMap<>() {{
+            put("b", new HashSet<>(Arrays.asList("S", "B")));  // multiple transitions for "b"
+            put("a", new HashSet<>(Collections.singletonList("C")));
+        }});
 
-        transitions.put("C", Map.of("b", "D"));
+        transitions.put("C", new HashMap<>() {{
+            put("b", new HashSet<>(Collections.singletonList("D")));
+        }});
 
-        transitions.put("D", new HashMap<>(Map.of(
-                "a", "D", // D → a (final)
-                "b", "C",
-                "c", "S"
-        )));
+        transitions.put("D", new HashMap<>() {{
+            put("a", new HashSet<>(Collections.singletonList("D")));
+            put("b", new HashSet<>(Collections.singletonList("C")));
+            put("c", new HashSet<>(Collections.singletonList("S")));
+        }});
 
+        // final states
         Set<String> finalStates = new HashSet<>();
-        finalStates.add("B"); // B → b
-        finalStates.add("D"); // D → a
+        finalStates.add("B");
+        finalStates.add("D");
 
         return new FiniteAutomaton(alphabet, states, "S", finalStates, transitions);
     }
