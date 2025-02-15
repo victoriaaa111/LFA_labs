@@ -20,7 +20,7 @@ public class FiniteAutomaton
         this.transitions = transitions;
     }
 
-    public boolean stringBelongToLanguage(final String inputString)
+    public boolean stringBelongToLanguage(String inputString)
     {
         String currentState = startState;
         for(char symbol : inputString.toCharArray()){
