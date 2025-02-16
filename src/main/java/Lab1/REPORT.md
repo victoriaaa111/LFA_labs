@@ -37,12 +37,27 @@ checking if the final state is reached.
 3. According to your variant number, get the grammar definition and do the following:
 
     a. Implement a type/class for your grammar;
-    
+
     b. Add one function that would generate 5 valid strings from the language expressed by your given grammar;
     
     c. Implement some functionality that would convert and object of type Grammar to one of type Finite Automaton;
     
     d. For the Finite Automaton, please add a method that checks if an input string can be obtained via the state transition from it;
+4. Implement the laboratory work for the following variant:
+   ```
+   Variant 21:
+   VN={S, B, C, D},
+   VT={a, b, c},
+   P={
+   S → aB     
+   B → bS    
+   B → aC   
+   B → b    
+   C → bD   
+   D → a    
+   D → bC
+   D → cS
+   }
 
 
 ## Implementation description
