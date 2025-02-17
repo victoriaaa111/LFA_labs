@@ -62,103 +62,99 @@ checking if the final state is reached.
 
 ## Implementation description
 
-* The following method checks whether a given input string belongs to the language. It starts from the initial state and 
-processes the input string symbol by symbol, transitioning between states based on the automaton's transition function. 
-For each symbol, it checks if the symbol belongs to the alphabet and if a valid transition exists, and if not, it 
-rejects the string immediately. If the string is processed successfully and ends in a final state, the string is 
-accepted, otherwise, it is rejected.
+### The stringBelongToLanguage method
 
-```
-public boolean stringBelongToLanguage(String inputString) {
-        Set<String> currentStates = new HashSet<>();
-        currentStates.add(startState);
+* At the beginning of the method, currentStates is initialized as a set containing only the starting state. Since this automaton is nondeterministic, multiple states can be active at once, but initially, only the start state is considered.
 
-        for (char symbol : inputString.toCharArray()) {
-            String symbolString = String.valueOf(symbol);
+   ```
+   Set<String> currentStates = new HashSet<>();
+   currentStates.add(startState);
+   
+   ```
 
-            if (!alphabet.contains(symbolString)) {
-                System.out.println("ERROR: Symbol '" + symbolString + "' not in alphabet!");
-                return false;
-            }
+* Before processing the character, the method verifies whether it exists in the automaton’s alphabet. If the symbol is not part of the alphabet, an error is displayed, and the input is immediately rejected.
+   ```
+   if (!alphabet.contains(symbolString)) {
+    System.out.println("ERROR: Symbol '" + symbolString + "' not in alphabet!");
+    return false;
+   }
+  
+   ```
+* A new set, nextStates, is created to store the possible states the automaton can transition to after reading the symbol. The method loops through all current active states, then it retrieves the transition rules for each state. If a transition exists for the current input symbol, the corresponding next states are added to nextStates. Since this is an NFA, multiple transitions are possible, meaning multiple next states can exist.
+   ```
+   Set<String> nextStates = new HashSet<>();
+   for (String state : currentStates) {
+   Map<String, Set<String>> stateTransitions = transitions.get(state);
+   if (stateTransitions != null && stateTransitions.containsKey(symbolString)) {
+   nextStates.addAll(stateTransitions.get(symbolString));
+   }
+   }
+  
+   ```
+*  Once all symbols have been processed, the method checks if any of the active states belong to the set of final states. If at least one final state is reached, the input string is accepted. Otherwise, it is rejected.
+   ```
+     for (String state : currentStates) {
+       if (finalStates.contains(state)) {
+           return true;
+       }
+   }
+   return false;
 
-            Set<String> nextStates = new HashSet<>();
-            for (String state : currentStates) {
-                Map<String, Set<String>> stateTransitions = transitions.get(state);
-                if (stateTransitions != null && stateTransitions.containsKey(symbolString)) {
-                    nextStates.addAll(stateTransitions.get(symbolString));
-                }
-            }
+   ```
 
-            if (nextStates.isEmpty()) {
-                System.out.println("No transition found for any state with symbol '" + symbolString + "'.");
-                return false;
-            }
+### The generateStrings method
+* The generateStrings method generates a specified number of distinct strings based on a given start symbol and the production rules. First, it initializes a Set<String> called generatedStrings to store the unique strings. The method then enters a while loop that continues until the set contains the desired number of distinct strings (numStrings). Inside the loop, a StringBuilder (sb) is created to build a new string, and the generateString method is called to generate a single string based on the startSymbol, appending it to sb. After the string is generated, it's converted to a String and added to the generatedStrings set. The loop ensures that only unique strings are stored, as the Set automatically handles duplicates. Once the set contains the specified number of strings, the method returns the results as a List<String> by converting the Set into an ArrayList.
 
-            currentStates = nextStates;
-        }
+   ```
+   public List<String> generateStrings(String startSymbol, int numStrings){
+           Set<String> generatedStrings = new HashSet<>();
+           while(generatedStrings.size() < numStrings){
+               StringBuilder sb = new StringBuilder();
+               generateString(startSymbol, sb);
+               generatedStrings.add(sb.toString());
+           }
+           return new ArrayList<>(generatedStrings);
+       }
+   
+   ```
 
-        for (String state : currentStates) {
-            if (finalStates.contains(state)) {
-                return true;
-            }
-        }
-
-        return false;
-    }
-```
-
-* The generateStrings method generates a specified number of valid strings that conform to the grammar. It starts with 
-the start symbol and recursively applies production rules for non-terminal symbols until terminal symbols are reached. 
-These terminal symbols are then combined together to form a complete string.
-
-```
-ublic List<String> generateStrings(String startSymbol, int numStrings){
-        Set<String> generatedStrings = new HashSet<>();
-        while(generatedStrings.size() < numStrings){
-            StringBuilder sb = new StringBuilder();
-            generateString(startSymbol, sb);
-            generatedStrings.add(sb.toString());
-        }
-        return new ArrayList<>(generatedStrings);
-    }
-
-```
+### The generateString method
 
 * The generateString method recursively processes a symbol, and if it's a terminal, it appends it directly to the output
 string. If the symbol is non-terminal, it looks up the corresponding production rules and randomly selects one to 
 further expand the string. This process continues until the entire string is formed by terminal symbols, representing a 
 valid word in the language defined by the grammar.
-```
-private void generateString(String symbol, StringBuilder sb) {
-        if (!this.P.containsKey(symbol)) {
-            sb.append(symbol);
-            return;
-        }
-        List<String> choices = this.P.get(symbol);
-        String choice = choices.get(new Random().nextInt(choices.size()));
-        for (char c : choice.toCharArray()) {
-            if (Character.isUpperCase(c)) {
-                generateString(String.valueOf(c), sb);
-            } else {
-                sb.append(c);
-            }
-        }
-    }
-```
+   ```
+   private void generateString(String symbol, StringBuilder sb) {
+           if (!this.P.containsKey(symbol)) {
+               sb.append(symbol);
+               return;
+           }
+           List<String> choices = this.P.get(symbol);
+           String choice = choices.get(new Random().nextInt(choices.size()));
+           for (char c : choice.toCharArray()) {
+               if (Character.isUpperCase(c)) {
+                   generateString(String.valueOf(c), sb);
+               } else {
+                   sb.append(c);
+               }
+           }
+       }
+   ```
 
-* The toFiniteAutomaton method transforms the given grammar into a finite automaton. It creates a set of states 
-corresponding to the non-terminal symbols in the grammar and defines the alphabet based on the terminal symbols. 
-The transition function is constructed by mapping the production rules, where each state has a set of possible 
-transitions for each input symbol. The final states are defined based on where the grammar can terminate, and the 
-resulting automaton is returned as a FiniteAutomaton object capable of accepting strings from the language.
+### The toFiniteAutomaton method
+* The automaton's states are initialized using the set of non-terminal symbols (V_n), while the alphabet consists of terminal symbols (V_t). A nested map structure is used to represent state transitions. The outer map associates a state with its corresponding transitions, while the inner map links an input symbol to a set of possible next states. This structure allows the automaton to support nondeterministic transitions.
 
-```
-public FiniteAutomaton toFiniteAutomaton() {
-        Set<String> states = new HashSet<>(V_n);
-        Set<String> alphabet = new HashSet<>(V_t);
-        Map<String, Map<String, Set<String>>> transitions = new HashMap<>();
+   ```
+   Set<String> states = new HashSet<>(V_n);
+   Set<String> alphabet = new HashSet<>(V_t);
+   Map<String, Map<String, Set<String>>> transitions = new HashMap<>();
+   ```
 
-        transitions.put("S", new HashMap<>() {{
+* The transitions for all states are defined using a nested mapping structure. Each state is mapped to another map that associates input symbols with possible next states. The transitions are as follows: "S" moves to "B" on input 'a', "B" moves to "S" or "B" on 'b', and to "C" on 'a', "C" moves to "D" on 'b', "D" loops on 'a', moves to "C" on 'b', and moves to "S" on 'c'. This structure ensures that the automaton follows its defined rules and supports nondeterministic behavior where multiple transitions are possible.
+
+   ```
+   transitions.put("S", new HashMap<>() {{
             put("a", new HashSet<>(Collections.singletonList("B")));
         }});
 
@@ -176,16 +172,14 @@ public FiniteAutomaton toFiniteAutomaton() {
             put("b", new HashSet<>(Collections.singletonList("C")));
             put("c", new HashSet<>(Collections.singletonList("S")));
         }});
+   ```
 
-        // final states
-        Set<String> finalStates = new HashSet<>();
+* The final states determine whether the input is accepted by the automaton. In this case, "B" and "D" are set as final states, meaning that if the automaton ends in either of these states after processing an input string, the string is accepted. This allows the automaton to recognize specific patterns in input sequences.
+   ```
+   Set<String> finalStates = new HashSet<>();
         finalStates.add("B");
         finalStates.add("D");
-
-        return new FiniteAutomaton(alphabet, states, "S", finalStates, transitions);
-    }
-}
-```
+   ```
 
 ## Results
 In the output we are first presented with 5 generated strings that belong to the proposed language. Then the program prints that the word "ab" is accepted by the automaton, as this is the default word I set in the code.
