@@ -188,6 +188,9 @@ public class FiniteAutomaton {
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
+        sb.append("States: ").append(states.isEmpty() ? "{}" : states).append("\n");
+        sb.append("Alphabet: ").append(alphabet).append("\n");
+        sb.append("Transitions: \n");
 
         for (Map.Entry<String, Map<Character, Set<String>>> entry : transitions.entrySet()) {
             String state = entry.getKey();
