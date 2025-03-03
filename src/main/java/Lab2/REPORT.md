@@ -105,34 +105,34 @@ The **Chomsky Hierarchy** is a classification of formal grammars based on their 
 
 *   The method begins by checking if the grammar is right-regular or left-regular using two helper methods (```isRightRegularGrammar``` and ```isLeftRegularGrammar```). It stores the results as boolean values.
 
-       ```
+       ```java
         boolean isRightRegular = isRightRegularGrammar();
         boolean isLeftRegular = isLeftRegularGrammar();
       
        ```  
 
 *   Next, it checks if the grammar is either right-regular or left-regular. If either condition is true, it classifies the grammar as "Type 3: Regular Grammar."
-    ```
+    ```java
     if (isRightRegular || isLeftRegular) {
-    return "Type 3: Regular Grammar";
+        return "Type 3: Regular Grammar";
     }
     ```
  
 *   If neither right-regular nor left-regular is found, the method proceeds to check if the grammar is context-free using the ```isContextFreeGrammar``` helper method. If true, it classifies the grammar as "Type 2: Context-Free Grammar."
-    ```
+    ```java
     else if (isContextFreeGrammar()) {
         return "Type 2: Context-Free Grammar";
     }
   
     ```
 *   If the grammar is not context-free, the method checks if it qualifies as context-sensitive grammar using the ```isContextSensitiveGrammar``` method. If true, the grammar is classified as "Type 1: Context-Sensitive Grammar." 
-    ```
+    ```java
     else if (isContextSensitiveGrammar()) {
     return "Type 1: Context-Sensitive Grammar";
     }
     ```
 *   Finally, if the grammar does not meet any of the above conditions, it classifies the grammar as "Type 0: Unrestricted Grammar."
-    ```
+    ```java
     else {
     return "Type 0: Unrestricted Grammar";
     }
@@ -140,7 +140,7 @@ The **Chomsky Hierarchy** is a classification of formal grammars based on their 
 
 ### The ```isRightRegular``` method
 *   This method checks if the given grammar is right-regular. It loops through each production rule in the grammar (denoted by ```P```), checking that the left side of the production is a non-terminal.
-       ```
+       ```java
        for (Map.Entry<String, Set<String>> entry : P.entrySet()) {
         String leftSide = entry.getKey();
         Set<String> rightSides = entry.getValue();
@@ -154,14 +154,14 @@ The **Chomsky Hierarchy** is a classification of formal grammars based on their 
        ```
 *   The method then checks each right-hand side of the production rule. It verifies that:
     - Empty string (ε) is allowed.
-    - If the right side consists only of terminals, it is considered valid.
-    - If the right side consists of a terminal followed by a non-terminal, it must adhere to the format (terminal first, followed by non-terminal).
-    
-    ```
+    ```java
         for (String rightSide : rightSides) {
         if (rightSide.equals("ε")) {
             continue;
         }
+    ```
+    - If the right side consists only of terminals, it is considered valid.
+    ```java
     
         boolean validRightSide = false;
         
@@ -174,8 +174,11 @@ The **Chomsky Hierarchy** is a classification of formal grammars based on their 
                 break;
             }
         }
+    ```
+    - If the right side consists of a terminal followed by a non-terminal, it must adhere to the format (terminal first, followed by non-terminal).
     
-        if (onlyTerminals) {
+    ```java
+    if (onlyTerminals) {
             validRightSide = true;
         } else {
             // terminal followed by non-terminal
@@ -186,9 +189,10 @@ The **Chomsky Hierarchy** is a classification of formal grammars based on their 
             }
         }
     }
-    ```
+
+
 *   If any right-hand side does not conform to the valid format, the method returns ```false```, indicating the grammar is not right-regular.
-    ```
+    ```java
     if (!validRightSide) {
     return false;
     }
@@ -196,37 +200,41 @@ The **Chomsky Hierarchy** is a classification of formal grammars based on their 
 ### The ```isLeftRegularMethod``` method
 
 *   This method works similarly to ```isRightRegularGrammar```, but checks for left-regular grammar. It ensures that the left side of each production rule is a non-terminal.
-   ```
-    for (Map.Entry<String, Set<String>> entry : P.entrySet()) {
-    String leftSide = entry.getKey();
-    Set<String> rightSides = entry.getValue();
-
-    // left side must be a non-terminal
-    if (!V_n.contains(leftSide)) {
-        return false;
-    }
-}
-   ```
-*   It then verifies that each right side is either:
-    - Only terminals.
-    - A non-terminal followed by terminals.
+       ```java
+        for (Map.Entry<String, Set<String>> entry : P.entrySet()) {
+        String leftSide = entry.getKey();
+        Set<String> rightSides = entry.getValue();
     
-    ```
-    for (String rightSide : rightSides) {
-    if (rightSide.equals("ε")) {
-        continue;
-    }
-
-    boolean validRightSide = false;
-
-    boolean onlyTerminals = true;
-    for (int i = 0; i < rightSide.length(); i++) {
-        String symbol = rightSide.substring(i, i + 1);
-        if (!V_t.contains(symbol)) {
-            onlyTerminals = false;
-            break;
+        // left side must be a non-terminal
+        if (!V_n.contains(leftSide)) {
+            return false;
         }
     }
+       ```
+*   It then verifies that each right side is either:
+    - Only terminals.
+
+    ```java
+    for (String rightSide : rightSides) {
+        if (rightSide.equals("ε")) {
+        continue;
+        }
+    
+        boolean validRightSide = false;
+    
+        boolean onlyTerminals = true;
+        for (int i = 0; i < rightSide.length(); i++) {
+            String symbol = rightSide.substring(i, i + 1);
+            if (!V_t.contains(symbol)) {
+                onlyTerminals = false;
+                break;
+            }
+        }
+    ```
+
+    - A non-terminal followed by terminals.
+    
+    ```java
 
     if (onlyTerminals) {
         validRightSide = true;
@@ -241,7 +249,7 @@ The **Chomsky Hierarchy** is a classification of formal grammars based on their 
     }
     ```
 *   If any of the right-hand sides are invalid, the method returns ```false```.
-    ```
+    ```java
     if (!validRightSide) {
         return false;
     }
@@ -250,25 +258,25 @@ The **Chomsky Hierarchy** is a classification of formal grammars based on their 
 
 ### The ```isContextFreeGrammar``` method
 *   This method checks if the grammar is context-free. It verifies that each production rule has a left-hand side consisting of a single non-terminal
-       ```
+       ```java
        for (Map.Entry<String, Set<String>> entry : P.entrySet()) {
         String leftSide = entry.getKey();
     
         // left side must be a single non-terminal
         if (!V_n.contains(leftSide)) {
             return false;
-        }
+            }
         }
        ```
 
 *   If all left-hand sides conform to the rule, the method returns ```true```, indicating the grammar is context-free.
-   ```
-   return true;
-   ```
+       ```java
+       return true;
+       ```
 
 ### The ```isContextSensitiveGrammar``` method
 * This method checks if the grammar is context-sensitive. It verifies that for each production rule, the length of the left side is less than or equal to the length of the right side (except when the production is S → ε).
-    ```
+    ```java
     for (Map.Entry<String, Set<String>> entry : P.entrySet()) {
     String leftSide = entry.getKey();
     Set<String> rightSides = entry.getValue();
@@ -287,7 +295,7 @@ The **Chomsky Hierarchy** is a classification of formal grammars based on their 
     }
     ```
 *   If any rule violates the length condition, the method returns ```false```. If all rules conform, it returns ```true```.
-    ```
+    ```java
     return true;
     ```
 
@@ -295,37 +303,34 @@ The **Chomsky Hierarchy** is a classification of formal grammars based on their 
 This method converts a finite automaton (FA) to a regular grammar. The regular grammar is represented by a set of productions, non-terminals, terminals, and the initial start state.
 
 * **Step 1: Non-terminals Initialization** : The non-terminals in the grammar correspond to the states of the finite automaton. A set of non-terminals is initialized with all states in the automaton.
-    ``` 
+    ```java
     Set<String> nonTerminals = new HashSet<>(states);
     ```
 * **Step 2: Terminals Initialization** : The terminals correspond to the alphabet of the automaton. The method collects all alphabet symbols and converts them to strings (if needed).
-    ```
+    ```java
     Set<String> terminals = alphabet.stream().map(String::valueOf).collect(Collectors.toSet());
     ```
 * **Step 3: Productions Creation** : The method loops through all states and creates productions for each state. If there are transitions for a given state and input symbol, it generates productions where the left-hand side is the state and the right-hand side is a terminal followed by a state. If a state is final, it generates an epsilon (ε) production.
-    ```
+    ```java
     Map<String, Set<String>> productions = new HashMap<>();
     for (String state : states) {
-    Set<String> stateProductions = new HashSet<>();
-    if (transitions.containsKey(state)) {
-    for (Map.Entry<Character, Set<String>> entry : transitions.get(state).entrySet()) {
-    char symbol = entry.getKey();
-    String terminal = String.valueOf(symbol);
-    for (String nextState : entry.getValue()) {
-    stateProductions.add(terminal + nextState);
-    }
-    }
-    }
-    if (finalStates.contains(state)) {
-    stateProductions.add("ε");
-    }
-    if (!stateProductions.isEmpty()) {
-    productions.put(state, stateProductions);
-    }
+        Set<String> stateProductions = new HashSet<>();
+        if (transitions.containsKey(state)) {
+            for (Map.Entry<Character, Set<String>> entry : transitions.get(state).entrySet()) {
+                char symbol = entry.getKey();
+                String terminal = String.valueOf(symbol);
+                    for (String nextState : entry.getValue()) {
+                        stateProductions.add(terminal + nextState);
+                    }
+            }
+        }
+        if (finalStates.contains(state)) {
+            stateProductions.add("ε");
+        }
     }
     ```
 * **Step 4: Return the Grammar** : The method returns the grammar object containing the productions, non-terminals, and terminals.
-    ```
+    ```java
     grammar.setP(productions);
     return grammar;
     ```
@@ -333,19 +338,19 @@ This method converts a finite automaton (FA) to a regular grammar. The regular g
 ### The ```isDeterministic()``` method
 This method checks whether the finite automaton is deterministic (DFA) or nondeterministic (NFA). An automaton is deterministic if, for each state and input symbol, there is at most one transition to another state.
 *   **Step 1: Iterate Through States and Symbols** : For each state in the automaton, the method checks each input symbol in the alphabet.
-    ```
+    ```java
     for(String state : states) {
     if(transitions.containsKey(state)) {
         for(char symbol : alphabet) {
     ```
 *  **Step 2: Check Multiple Transitions for a Symbol** : If a state has more than one transition for the same symbol, the automaton is nondeterministic, and the method returns false.
-    ```
+    ```java
     if(transitions.get(state).containsKey(symbol) && transitions.get(state).get(symbol).size() > 1) {
     return false;
     }
     ```
 *  **Step 3: Return Determinism Status** : If no state violates the deterministic condition, the method returns true, indicating the automaton is deterministic.
-    ```
+    ```java
     return true;
     ```
 
@@ -353,13 +358,13 @@ This method checks whether the finite automaton is deterministic (DFA) or nondet
 This method converts the given Nondeterministic Finite Automaton (NFA) to a Deterministic Finite Automaton (DFA) using the subset construction (powerset construction) algorithm.
 
 * **Step 1: Initialize the DFA** : The method initializes the DFA with an empty alphabet and sets the starting state.
-    ```
+    ```java
     FiniteAutomaton dfa = new FiniteAutomaton();
     dfa.setAlphabet(new HashSet<>(alphabet));
     ```
 
 * **Step 2: Epsilon Closure for Initial State** : The epsilon closure of the NFA start state is computed. The start state of the DFA is assigned based on this epsilon closure.
-    ```
+    ```java
     Set<String> initialStateSet = epsilonClosure(Collections.singleton(startState));
     String initialStateName = "q0";
     stateNameMap.put(initialStateSet, initialStateName);
@@ -373,7 +378,7 @@ This method converts the given Nondeterministic Finite Automaton (NFA) to a Dete
     ```
    
 *  **Step 4: Check Final States** : The method checks if any state in the DFA corresponds to a final state in the NFA. If so, it marks that state as a final state in the DFA.
-    ```
+    ```java
     boolean isFinal = false;
     for (String state : initialStateSet) {
     if (finalStates.contains(state)) {
@@ -387,7 +392,7 @@ This method converts the given Nondeterministic Finite Automaton (NFA) to a Dete
     ```
 
 *  **Step 5: State Transitions** : The method uses the ```move()``` function to find the next set of states for a given symbol and adds the transitions to the DFA. If the resulting state set is not already present in the DFA, a new state is created and added.
-    ```
+    ```java
     for (char symbol : alphabet) {
     Set<String> nextStateSet = move(currentStateSet, symbol);
     if (!nextStateSet.isEmpty()) {
@@ -412,12 +417,12 @@ This method converts the given Nondeterministic Finite Automaton (NFA) to a Dete
             nextStateName = stateNameMap.get(nextStateSet);
         }
         dfa.addTransition(stateNameMap.get(currentStateSet), symbol, nextStateName);
-    }
+        }
     }
     ```
 
 *  **Step 6: Return DFA** : The method returns the newly created DFA.
-    ``` 
+    ```java
     dfa.setStateToNfaStatesMap(reverseStateNameMap);
     return dfa;
     ```
@@ -425,7 +430,7 @@ This method converts the given Nondeterministic Finite Automaton (NFA) to a Dete
 ### The ```move()``` method
 This helper method computes the set of states that can be reached from a set of states on a given input symbol. It simulates the transition function for a set of states.
 *   **Step 1: Loop Through States**: For each state in the input set, the method checks if a transition exists for the given symbol.
-    ```
+    ```java
     for (String state : states) {
         if (transitions.containsKey(state) && transitions.get(state).containsKey(symbol)) {
             result.addAll(transitions.get(state).get(symbol));
@@ -433,14 +438,14 @@ This helper method computes the set of states that can be reached from a set of 
     }
     ```
 *   **Step 2: Return Result** : The method returns the set of states reachable from the given states on the input symbol.
-    ```
+    ```java
     return result;
     ```
 
 ### The ```epsilonClosure()``` method
 This helper method computes the epsilon closure of a given set of states. In this case, it is a simple placeholder method, which returns the set of states without any changes, assuming no epsilon transitions are present.
 * **Step 1: Return Input States** : The method returns the same set of states passed as input.
-    ```
+    ```java
     return new HashSet<>(states);
     ```
 
@@ -452,7 +457,15 @@ In the output, we are presented with the details of a grammar that includes non-
 The conversion of the given FA to a regular grammar is confirmed as correct. The program then identifies that the finite automaton (FA) is non-deterministic (NFA) and converts it to a deterministic finite automaton (DFA).
 The output shows the state transitions of the DFA, such as {q0, q1} --a--> {q0, q1}, {q0, q1} --b--> {q2}, and others, demonstrating the automaton's behavior.
 
-    
+<img src="toDFA.jpg" alt="Results" width="280"/>
+
+<em>Manual Conversion of NFA to DFA</em>
+
+<img src="toRegular.jpg" alt="Results" width="280"/>
+
+<em>Manual Conversion of FA to Regular Grammar</em>
+
+I have also implemented the conversion of the **FA** to a **Regular Grammar** manually. As we can observe, the results I obtained through manual calculation are the same as the results obtained through the program.
 
 ## Conclusions
 Through this lab, I gained a deeper understanding of automata, particularly focusing on converting a non-deterministic finite automaton (NFA) to a deterministic finite automaton (DFA). I also worked on classifying grammars based on the Chomsky hierarchy and converting a finite automaton into a regular grammar. One of the main challenges I faced during the NFA to DFA conversion was dealing with the process of grouping multiple NFA states into a single DFA state. This was difficult because when converting to a DFA, I needed to account for every possible combination of NFA states and ensure that each combination was mapped correctly to a unique DFA state.
