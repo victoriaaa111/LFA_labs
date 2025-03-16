@@ -17,11 +17,6 @@ public class Lexer {
         return (position < input.length()) ? input.charAt(position) : '\0';
     }
 
-    // method to peek at the next character without advancing
-    private char peekChar() {
-        return (position + 1 < input.length()) ? input.charAt(position + 1) : '\0';
-    }
-
     // method to advance the position
     private void advance() {
         position++;
