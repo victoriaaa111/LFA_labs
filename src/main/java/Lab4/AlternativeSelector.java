@@ -5,10 +5,10 @@ public class AlternativeSelector {
     private static final Random random = new Random();
 
     public String select(String group) {
-        // Split alternatives
+        // split alternatives
         String[] alternatives = group.split("\\|");
 
-        // Randomly select an alternative
+        // randomly select an alternative
         return alternatives[random.nextInt(alternatives.length)];
     }
 }
