@@ -1,58 +1,80 @@
 package Lab4;
-import java.util.Random;
+import java.util.ArrayList;
+import java.util.List;
 
-public class RegexParser {
-    private static final Random RANDOM = new Random();
+class RegexParser {
     private String regex;
-    private int index;
-    private int repetitionLimit;
+    private int position;
+    private List<Token> tokens;
 
-    public RegexParser(String regex, int repetitionLimit) {
-        this.regex = regex;
-        this.index = 0;
-        this.repetitionLimit = repetitionLimit;
+    public RegexParser(String regex) {
+        this.regex = regex.replace("^", "{"); // Replace ^ with { for parsing
+        this.position = 0;
+        this.tokens = new ArrayList<>();
     }
 
-    public void parse(StringBuilder result) {
-        while (index < regex.length()) {
-            char current = regex.charAt(index);
-            if (current == '(') {
-                result.append(handleGroup());
-            } else if (current == '[') {
-                result.append(handleSet());
-            } else if (Character.isLetterOrDigit(current)) {
-                result.append(current);
-            } else if (current == '*' || current == '+' || current == '?') {
-                handleQuantifier(result, current);
+    public List<Token> parse() {
+        while (position < regex.length()) {
+            char c = regex.charAt(position);
+
+            if (c == '(') {
+                tokens.add(new Token(TokenType.OPEN_PAREN, "("));
+                position++;
+            } else if (c == ')') {
+                tokens.add(new Token(TokenType.CLOSE_PAREN, ")"));
+                position++;
+            } else if (c == '|') {
+                tokens.add(new Token(TokenType.OR, "|"));
+                position++;
+            } else if (c == '+') {
+                tokens.add(new Token(TokenType.PLUS, "+"));
+                position++;
+            } else if (c == '*') {
+                tokens.add(new Token(TokenType.STAR, "*"));
+                position++;
+            } else if (c == '?') {
+                tokens.add(new Token(TokenType.QUESTION, "?"));
+                position++;
+            } else if (c == '{') {
+                tokens.add(new Token(TokenType.REPEAT_START, "{"));
+                position++;
+                parseNumber();
+                if (position < regex.length() && regex.charAt(position) == ',') {
+                    tokens.add(new Token(TokenType.COMMA, ","));
+                    position++;
+                    parseNumber();
+                }
+                if (position < regex.length() && regex.charAt(position) == '}') {
+                    tokens.add(new Token(TokenType.REPEAT_END, "}"));
+                    position++;
+                }
+            } else if (c == ' ' || c == '\t' || c == '\n' || c == '\r') {
+                // Skip whitespace
+                position++;
+            } else {
+                // Literal character or a sequence of literals
+                StringBuilder literal = new StringBuilder();
+                while (position < regex.length() &&
+                        "(){}|+*? \t\n\r".indexOf(regex.charAt(position)) == -1) {
+                    literal.append(regex.charAt(position));
+                    position++;
+                }
+                if (literal.length() > 0) {
+                    tokens.add(new Token(TokenType.LITERAL, literal.toString()));
+                }
             }
-            index++;
         }
+        return tokens;
     }
 
-    private String handleGroup() {
-        index++;
-        StringBuilder group = new StringBuilder();
-        while (index < regex.length() && regex.charAt(index) != ')') {
-            group.append(regex.charAt(index++));
+    private void parseNumber() {
+        StringBuilder number = new StringBuilder();
+        while (position < regex.length() && Character.isDigit(regex.charAt(position))) {
+            number.append(regex.charAt(position));
+            position++;
         }
-        String[] options = group.toString().split("\\|");
-        return options[RANDOM.nextInt(options.length)];
-    }
-
-    private String handleSet() {
-        index++;
-        StringBuilder set = new StringBuilder();
-        while (index < regex.length() && regex.charAt(index) != ']') {
-            set.append(regex.charAt(index++));
-        }
-        return String.valueOf(set.charAt(RANDOM.nextInt(set.length())));
-    }
-
-    private void handleQuantifier(StringBuilder result, char quantifier) {
-        int repeat = (quantifier == '?') ? RANDOM.nextInt(2) : RANDOM.nextInt(repetitionLimit) + (quantifier == '*' ? 0 : 1);
-        char lastChar = result.charAt(result.length() - 1);
-        for (int i = 1; i < repeat; i++) {
-            result.append(lastChar);
+        if (number.length() > 0) {
+            tokens.add(new Token(TokenType.NUMBER, number.toString()));
         }
     }
 }
