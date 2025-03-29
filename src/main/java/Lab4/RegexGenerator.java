@@ -7,7 +7,7 @@ public class RegexGenerator {
     private Random random;
     private Map<String, List<String>> allProcessingSteps;
     private List<String> currentSteps;
-    private int maxIterations = 5; //lLimit for * and + operators
+    private int maxIterations = 5; //Limit for * and + operators
 
     public RegexGenerator(List<Token> tokens) {
         this.tokens = tokens;
