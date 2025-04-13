@@ -71,7 +71,7 @@ public class Grammar {
 
         sb.append("S = ").append(startSymbol);
 
-        sb.append("P = {\n");
+        sb.append("\nP = {\n");
         for (int i = 0; i < rules.length; i++) {
             sb.append("    ").append(i + 1).append(". ").append(rules[i]).append("\n");
         }
