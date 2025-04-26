@@ -14,18 +14,18 @@ public class Lexer {
 
     static {
         StringBuilder patternsBuilder = new StringBuilder();
-        patternsBuilder.append(String.format("|(?<NUMBER>\\d+(\\.\\d+)?)"));
-        patternsBuilder.append(String.format("|(?<SIN>sin)"));
-        patternsBuilder.append(String.format("|(?<COS>cos)"));
-        patternsBuilder.append(String.format("|(?<TAN>tan)"));
-        patternsBuilder.append(String.format("|(?<PLUS>\\+)"));
-        patternsBuilder.append(String.format("|(?<MINUS>\\-)"));
-        patternsBuilder.append(String.format("|(?<MULTIPLY>\\*)"));
-        patternsBuilder.append(String.format("|(?<DIVIDE>/)"));
-        patternsBuilder.append(String.format("|(?<POWER>\\^)"));
-        patternsBuilder.append(String.format("|(?<LPAREN>\\()"));
-        patternsBuilder.append(String.format("|(?<RPAREN>\\))"));
-        patternsBuilder.append(String.format("|(?<WHITESPACE>\\s+)"));
+        patternsBuilder.append("|(?<NUMBER>\\d+(\\.\\d+)?)");
+        patternsBuilder.append("|(?<SIN>sin)");
+        patternsBuilder.append("|(?<COS>cos)");
+        patternsBuilder.append("|(?<TAN>tan)");
+        patternsBuilder.append("|(?<PLUS>\\+)");
+        patternsBuilder.append("|(?<MINUS>\\-)");
+        patternsBuilder.append("|(?<MULTIPLY>\\*)");
+        patternsBuilder.append("|(?<DIVIDE>/)");
+        patternsBuilder.append("|(?<POWER>\\^)");
+        patternsBuilder.append("|(?<LPAREN>\\()");
+        patternsBuilder.append("|(?<RPAREN>\\))");
+        patternsBuilder.append("|(?<WHITESPACE>\\s+)");
         tokenPatterns = Pattern.compile(patternsBuilder.substring(1));
     }
 
