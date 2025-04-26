@@ -1,6 +1,6 @@
 package Lab6;
 
-public enum TokenType {
+public enum NodeType {
     NUMBER,
     FUNCTION,
     OPERATION
